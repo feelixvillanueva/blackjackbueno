@@ -6,48 +6,30 @@
 #define CARD_VALUES 13
 #define MAX_HAND 10
 
-// Representación de las cartas
+// Representation of cards
 char *values[] = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
-char *suits[] = {"Corazones", "Diamantes", "Picas", "Tréboles"};
+char *suits[] = {"Hearts", "Diamonds", "Spades", "Clubs"};
 
-// Estructura para una carta
-struct carta {
+// Structure for a card
+struct card {
     char *value;
     char *suit;
     int numericValue;
 };
 
-struct carta deck[TOTAL_CARDS];
-struct carta playerHand[MAX_HAND];
+struct card deck[TOTAL_CARDS];
+struct card playerHand[MAX_HAND];
 int numPlayerCards = 0;
 int playerSum = 0;
 char choice;
 
-void initializeDeck() {
-    for (int i = 0; i < TOTAL_CARDS; i++) {
-        deck[i].value = values[i % CARD_VALUES];
-        deck[i].suit = suits[i / CARD_VALUES];
-        deck[i].numericValue = (i % CARD_VALUES) + 1;
-        if (deck[i].numericValue > 10) deck[i].numericValue = 10;
-        if (i % CARD_VALUES == CARD_VALUES - 1) deck[i].numericValue = 11;
-    }
+
+
+void showCard(struct card c) {
+    printf("  %s of %s\n", c.value, c.suit);
 }
 
-void shuffleDeck() {
-    srand(time(NULL));
-    for (int i = 0; i < TOTAL_CARDS; i++) {
-        int j = rand() % TOTAL_CARDS;
-        struct carta temp = deck[i];
-        deck[i] = deck[j];
-        deck[j] = temp;
-    }
-}
-
-void showCard(struct carta c) {
-    printf("  %s de %s\n", c.value, c.suit);
-}
-
-int sumHand(struct carta hand[], int numCards) {
+int sumHand(struct card hand[], int numCards) {
     int sum = 0;
     for (int i = 0; i < numCards; i++) {
         sum += hand[i].numericValue;
@@ -56,42 +38,56 @@ int sumHand(struct carta hand[], int numCards) {
 }
 
 int main() {
-    initializeDeck();
-    shuffleDeck();
+    for (int i = 0; i < TOTAL_CARDS; i++) {
+        deck[i].value = values[i % CARD_VALUES];
+        deck[i].suit = suits[i / CARD_VALUES];
+        deck[i].numericValue = (i % CARD_VALUES) + 2;
+        if (deck[i].numericValue > 10) deck[i].numericValue = 10;
+        if (i % CARD_VALUES == CARD_VALUES - 1) deck[i].numericValue = 11;
+    }
 
-    printf("Bienvenido al Blackjack!\n");
+
+    srand(time(NULL));
+    for (int i = 0; i < TOTAL_CARDS; i++) {
+        int j = rand() % TOTAL_CARDS;
+        struct card temp = deck[i];
+        deck[i] = deck[j];
+        deck[j] = temp;
+    }
+
+    printf("Welcome to Blackjack!\n");
 
     playerHand[numPlayerCards++] = deck[0];
     playerHand[numPlayerCards++] = deck[1];
     playerSum = sumHand(playerHand, numPlayerCards);
 
-    printf("Tus cartas:\n");
+    printf("Your cards:\n");
     showCard(playerHand[0]);
     showCard(playerHand[1]);
-    printf("Suma total: %d\n", playerSum);
+    printf("Total sum: %d\n", playerSum);
 
     while (playerSum < 21) {
-        printf("¿Quieres otra carta? (s/n): ");
+        printf("Do you want another card? (y/n): ");
         scanf(" %c", &choice);
 
-        if (choice == 's' || choice == 'S') {
+        if (choice == 'y' || choice == 'Y') {
             playerHand[numPlayerCards] = deck[numPlayerCards + 1];
             playerSum = sumHand(playerHand, ++numPlayerCards);
 
-            printf("Nueva carta:\n");
+            printf("New card:\n");
             showCard(playerHand[numPlayerCards - 1]);
-            printf("Suma total: %d\n", playerSum);
+            printf("Total sum: %d\n", playerSum);
         } else {
             break;
         }
     }
 
     if (playerSum == 21) {
-        printf("¡Blackjack! Has ganado.\n");
+        printf("Blackjack! You won.\n");
     } else if (playerSum > 21) {
-        printf("Te has pasado. Fin del juego.\n");
+        printf("You busted. Game over.\n");
     } else {
-        printf("Te has plantado con %d. Fin del juego.\n", playerSum);
+        printf("You stood with %d. Game over.\n", playerSum);
     }
 
     return 0;
